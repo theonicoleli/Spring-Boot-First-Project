@@ -1,0 +1,5 @@
+package com.firstspring.userdept.entities;
+
+public class User {
+
+}

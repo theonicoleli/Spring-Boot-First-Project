@@ -1,0 +1,73 @@
+package com.firstspring.userdept.controllers;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.firstspring.userdept.entities.User;
+import com.firstspring.userdept.repositories.UserRepository;
+
+@RestController
+@RequestMapping(value = "/users")
+public class UserController {
+	
+	@Autowired
+	private UserRepository repository;
+
+	@GetMapping
+	public ResponseEntity<List<User>> findAll() {
+	    try {
+	        List<User> result = repository.findAll();
+	        return new ResponseEntity<>(result, HttpStatus.OK);
+	    } catch (Exception e) {
+	        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	}
+
+	@GetMapping(value = "/{id}")
+	public ResponseEntity<User> findById(@PathVariable Long id) {
+	    try {
+	        User result = repository.findById(id).orElse(null);
+	        if (result != null) {
+	            return new ResponseEntity<>(result, HttpStatus.OK);
+	        } else {
+	            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	        }
+	    } catch (Exception e) {
+	        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	}
+
+	@PostMapping
+	public ResponseEntity<User> insertUser(@RequestBody User user) {
+	    try {
+	        User result = repository.save(user);
+	        return new ResponseEntity<>(result, HttpStatus.CREATED);
+	    } catch (Exception e) {
+	        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	}
+
+	@DeleteMapping(value = "/{id}")
+	public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+	    try {
+	        repository.deleteById(id);
+	        return new ResponseEntity<>("Usuário excluído com sucesso", HttpStatus.OK);
+	    } catch (EmptyResultDataAccessException e) {
+	        return new ResponseEntity<>("Usuário não encontrado", HttpStatus.NOT_FOUND);
+	    } catch (Exception e) {
+	        return new ResponseEntity<>("Erro ao excluir usuário", HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	}
+	
+}
